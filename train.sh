@@ -3,4 +3,4 @@
 DATAPATH=/data/sceneflow
 SAVEPATH=/stereonet/results
 
-./main8multi.py --datapath ${DATAPATH} --save_path ${SAVEPATH}
+python ./main8Xmulti.py --datapath ${DATAPATH} --save_path ${SAVEPATH}
