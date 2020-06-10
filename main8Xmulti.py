@@ -17,7 +17,8 @@ from dataloader import listflowfile as lt
 from dataloader import SecenFlowLoader as DA
 import utils.logger as logger
 from utils.utils import GERF_loss, smooth_L1_loss
-from models.StereoNet8Xmulti import StereoNet
+# from models.StereoNet8Xmulti import StereoNet
+from models.StereoNet_single import StereoNet
 from os.path import join, split, isdir, isfile, splitext, split, abspath, dirname
 import cv2 as cv
 import numpy as np
