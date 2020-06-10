@@ -15,8 +15,8 @@ WORKDIR /stereonet
 # Stop gui stuff during installation of tzdata.
 ENV DEBIAN_FRONTEND=noninteractive 
 
-# Install opencv
-RUN apt update && apt install -y python3-opencv
+# More deps.
+RUN apt update && apt install -y libgtk2.0-dev
 RUN rm -rf /var/lib/apt/lists/*
 
 # Install python requirements.
