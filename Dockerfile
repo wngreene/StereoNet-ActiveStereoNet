@@ -12,6 +12,9 @@ RUN apt install -y sudo && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /stereonet
 
+# Stop gui stuff during installation of tzdata.
+ENV DEBIAN_FRONTEND=noninteractive 
+
 # Install opencv
 RUN apt update && apt install -y python3-opencv
 RUN rm -rf /var/lib/apt/lists/*
