@@ -22,6 +22,3 @@ RUN rm -rf /var/lib/apt/lists/*
 # Install python requirements.
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
-
-# Copy source.
-COPY ./ ./
