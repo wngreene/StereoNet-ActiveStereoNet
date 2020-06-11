@@ -184,7 +184,7 @@ def train(dataloader, model, optimizer, log, epoch=0):
             all_results[-1, 0, :, :] = disp_L[:, :]/255.0
             torchvision.utils.save_image(all_results, join(args.save_path, "iter-%d.jpg" % batch_idx))
             # print(imgL)
-            im = np.array(imgL[0,:,:,:].permute(1,2,0)*255, dtype=np.uint8)
+            im = np.array(imgL[0,:,:,:].permute(1,2,0).cpu()*255, dtype=np.uint8)
         
             cv.imwrite(join(args.save_path, "itercolor-%d.jpg" % batch_idx),im)
 
