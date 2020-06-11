@@ -46,7 +46,8 @@ parser.add_argument('--stepsize', default=1, type=int,
 parser.add_argument('--gamma', '--gm', default=0.6, type=float,
                     help='learning rate decay parameter: Gamma')
 parser.add_argument('--print_freq', type=int, default=100, help='print frequence')
-parser.add_argument('--stages', type=int, default=4, help='the stage num of refinement')
+parser.add_argument('--stages_k', type=int, default=3, help='the stages of feature extraction')
+parser.add_argument('--stages_r', type=int, default=1, help='the stage num of refinement')
 parser.add_argument('--gpu', default='0', type=str, help='GPU ID')
 
 args = parser.parse_args()
@@ -84,7 +85,7 @@ def main():
     for key, value in sorted(vars(args).items()):
         log.info(str(key) + ':' + str(value))
     
-    model = StereoNet(k=args.stages-1, r=args.stages-1, maxdisp=args.maxdisp)
+    model = StereoNet(k=args.stages_k-1, r=args.stages_r-1, maxdisp=args.maxdisp)
     model = nn.DataParallel(model).cuda()
     model.apply(weights_init)
     print('init with normal')
@@ -131,8 +132,7 @@ def main():
 
 def train(dataloader, model, optimizer, log, epoch=0):
 
-    stages = args.stages
-    losses = [AverageMeter() for _ in range(stages)]
+    losses = [AverageMeter() for _ in range(args.stages_r + 1)]
     length_loader = len(dataloader)
     counter = 0
 
@@ -163,13 +163,13 @@ def train(dataloader, model, optimizer, log, epoch=0):
             optimizer.zero_grad()
             counter = 0
 
-        for idx in range(stages):
+        for idx in range(len(outputs)):
             losses[idx].update(loss[idx].item()/args.loss_weights[idx])
 
 
 
         if batch_idx % args.print_freq == 0:
-            info_str = ['Stage {} = {:.2f}({:.2f})'.format(x, losses[x].val, losses[x].avg) for x in range(stages)]
+            info_str = ['Stage {} = {:.2f}({:.2f})'.format(x, losses[x].val, losses[x].avg) for x in range(len(outputs))]
             
             info_str = '\t'.join(info_str)
 
@@ -188,14 +188,13 @@ def train(dataloader, model, optimizer, log, epoch=0):
         
             cv.imwrite(join(args.save_path, "itercolor-%d.jpg" % batch_idx),im)
 
-    info_str = '\t'.join(['Stage {} = {:.2f}'.format(x, losses[x].avg) for x in range(stages)])
+    info_str = '\t'.join(['Stage {} = {:.2f}'.format(x, losses[x].avg) for x in range(len(outputs))])
     log.info('Average train loss = ' + info_str)
 
 def test(dataloader, model, log):
 
-    stages = args.stages
     # End-point-error
-    EPES = [AverageMeter() for _ in range(stages)]
+    EPES = [AverageMeter() for _ in range(args.stages_r + 1)]
     length_loader = len(dataloader)
 
     # model.eval()
@@ -212,7 +211,7 @@ def test(dataloader, model, log):
         
         with torch.no_grad():
             outputs = model(imgL, imgR)
-            for x in range(stages):
+            for x in range(len(outputs)):
             
                 if len(disp_L[mask]) == 0:
                     EPES[x].update(0)
@@ -221,7 +220,7 @@ def test(dataloader, model, log):
                 EPES[x].update((output[mask] - disp_L[mask]).abs().mean())
                 
 
-        info_str = '\t'.join(['Stage {} = {:.2f}({:.2f})'.format(x, EPES[x].val, EPES[x].avg) for x in range(stages)])
+        info_str = '\t'.join(['Stage {} = {:.2f}({:.2f})'.format(x, EPES[x].val, EPES[x].avg) for x in range(len(outputs))])
 
         log.info('[{}/{}] {}'.format(
             batch_idx, length_loader, info_str))
@@ -256,7 +255,7 @@ def test(dataloader, model, log):
         # im_color = cv.applyColorMap(np.array(all_results_color*2, dtype=np.uint8), cv.COLORMAP_JET)
         # cv.imwrite(join(args.save_path, "iterpredcolor-%d.jpg" % batch_idx),im_color)
 
-    info_str = ', '.join(['Stage {}={:.2f}'.format(x, EPES[x].avg) for x in range(stages)])
+    info_str = ', '.join(['Stage {}={:.2f}'.format(x, EPES[x].avg) for x in range(len(outputs))])
     log.info('Average test EPE = ' + info_str)
 
 
