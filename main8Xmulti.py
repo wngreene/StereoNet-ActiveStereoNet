@@ -77,7 +77,7 @@ def main():
 
     TestImgLoader = torch.utils.data.DataLoader(
         DA.myImageFloder(test_left_img, test_right_img, test_left_disp, False, normalize=__normalize),
-        batch_size=args.test_bsize, shuffle=False, num_workers=4, drop_last=False)
+        batch_size=args.test_bsize, shuffle=False, num_workers=1, drop_last=False)
 
     if not os.path.isdir(args.save_path):
         os.makedirs(args.save_path)
@@ -197,8 +197,9 @@ def test(dataloader, model, log):
     EPES = [AverageMeter() for _ in range(args.stages_r + 1)]
     length_loader = len(dataloader)
 
-    # model.eval()
-    model.train()
+    model.eval()
+    # model.train()
+
 
     for batch_idx, (imgL, imgR, disp_L) in enumerate(dataloader):
         imgL = imgL.float().cuda()
