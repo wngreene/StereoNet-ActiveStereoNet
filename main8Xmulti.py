@@ -85,7 +85,7 @@ def main():
     for key, value in sorted(vars(args).items()):
         log.info(str(key) + ':' + str(value))
     
-    model = StereoNet(k=args.stages_k-1, r=args.stages_r-1, maxdisp=args.maxdisp)
+    model = StereoNet(k=args.stages_k, r=args.stages_r, maxdisp=args.maxdisp)
     model = nn.DataParallel(model).cuda()
     model.apply(weights_init)
     print('init with normal')

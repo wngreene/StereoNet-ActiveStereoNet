@@ -145,9 +145,12 @@ class StereoNet(nn.Module):
             32, 1, kernel_size=3, stride=1, padding=1)
         
         self.edge_aware_refinements = nn.ModuleList()
-        for _ in range(1):
+        for _ in range(self.r):
             self.edge_aware_refinements.append(EdgeAwareRefinement(4))
-    
+
+        assert(self.k == 3)
+        assert(self.r == 1)
+
     def forward(self, left, right):
         disp = (self.maxdisp + 1) // pow(2, self.k)
         refimg_feature = self.feature_extraction(left)
