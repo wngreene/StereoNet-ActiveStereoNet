@@ -38,7 +38,7 @@ class BasicBlock(nn.Module):
         self.conv1 = nn.Sequential(
             convbn(in_channel, out_channel, 3, stride, pad, dilation),
             nn.LeakyReLU(negative_slope=0.2, inplace=True))
-        self.conv2 = convbn(out_channel, out_channel, 3, 1, pad, dilation)
+        # self.conv2 = convbn(out_channel, out_channel, 3, 1, pad, dilation)
         self.downsample = downsample
         self.stride = stride
 
